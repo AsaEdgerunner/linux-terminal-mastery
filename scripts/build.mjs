@@ -103,7 +103,7 @@ const decorateNotes = (html) => html
   .replace(/<p>(در فصل بعد[\s\S]*?)<\/p>\s*(?:<p>([\s\S]*?)<\/p>)?/g, (_, body, extra) => note("info", "[→]", extra ? `${body} ${extra}` : body));
 
 const decorateExercises = (html) => html.replace(
-  /<h3>(تمرین\s+[^<]+)<\/h3>\s*(?:<p>([\s\S]*?)<\/p>\s*)?(<div class="term-mini">[\s\S]*?<\/div>)?/g,
+  /<h3>(تمرین\s+[^<]+)<\/h3>\s*(?:<p>([\s\S]*?)<\/p>\s*)?(<div class="term-mini">\s*<div class="tm-head">[\s\S]*?<\/div>\s*<pre>[\s\S]*?<\/pre>\s*<\/div>)?/g,
   (match, heading, title, mini, offset, full) => {
     const n = (full.slice(0, offset).match(/<h3>تمرین/g) || []).length + 1;
     const label = String(n).padStart(2, "0");
@@ -121,7 +121,8 @@ const renderMarkdown = (markdown, ctx) => {
     },
     code({ text, lang }) {
       if (isDiagram(text, lang)) {
-        return `<pre class="diagram">${escapeHtml(text)}</pre>\n`;
+        const singleLine = !text.includes("\n");
+        return `<pre class="diagram${singleLine ? " diagram-line" : ""}">${escapeHtml(text)}</pre>\n`;
       }
       return `${termMini(text, { ...ctx, lang: lang || "bash" })}\n`;
     },
